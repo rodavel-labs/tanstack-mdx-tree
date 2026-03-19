@@ -161,21 +161,3 @@ export async function scanPages(
 	return pages;
 }
 
-/**
- * Resolves the `extra.module` field for each page by looking up its module-root ancestor.
- * Pages inherit the module from the root page of their first path segment.
- *
- * This is the default `enrichPages` implementation.
- */
-export function resolveModules(pages: ScannedPage[], pageByKey: Map<string, ScannedPage>): void {
-	for (const page of pages) {
-		if (page.extra?.module) continue;
-		if (page.segments.length === 0) continue;
-
-		const moduleRoot = pageByKey.get(page.segments[0]);
-		const mod = moduleRoot?.extra?.module;
-		if (mod) {
-			page.extra = { ...page.extra, module: mod };
-		}
-	}
-}

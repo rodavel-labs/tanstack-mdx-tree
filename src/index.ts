@@ -12,7 +12,6 @@ export { contentTreeGeneratorPlugin } from "./plugin";
 export {
 	defaultMapFrontmatter,
 	readDirectoryMeta,
-	resolveModules,
 	scanPages,
 } from "./scanner";
 export type { BuildContext, PageIndex } from "./tree-builder";

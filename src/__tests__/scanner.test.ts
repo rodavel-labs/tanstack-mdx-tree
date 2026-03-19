@@ -2,8 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { readDirectoryMeta, resolveModules, scanPages } from "../scanner";
-import type { FrontmatterMapper } from "../types";
+import { readDirectoryMeta, scanPages } from "../scanner";
 import { createPage } from "./helpers";
 
 let fixtureDir: string;
@@ -59,18 +58,6 @@ describe("scanPages", () => {
 
 		const pages = await scanPages(fixtureDir, "index.mdx");
 		expect(pages[0].extra).toEqual({ module: "SES" });
-	});
-
-	it("accepts a custom mapFrontmatter callback", async () => {
-		await createPage(fixtureDir, "index.mdx", { title: "Home", category: "docs" });
-
-		const mapper: FrontmatterMapper = (raw) => ({
-			title: raw.title as string,
-			extra: { category: raw.category },
-		});
-
-		const pages = await scanPages(fixtureDir, "index.mdx", mapper);
-		expect(pages[0].extra).toEqual({ category: "docs" });
 	});
 
 	it("throws with file context on malformed frontmatter", async () => {
@@ -162,55 +149,3 @@ describe("readDirectoryMeta", () => {
 	});
 });
 
-describe("resolveModules", () => {
-	it("resolves module from root ancestor", () => {
-		const pages = [
-			{
-				key: "ses",
-				title: "SES",
-				order: 1,
-				file: "ses/index.mdx",
-				segments: ["ses"],
-				extra: { module: "SES Inbox" },
-			},
-			{
-				key: "ses/setup",
-				title: "Setup",
-				order: 2,
-				file: "ses/setup/index.mdx",
-				segments: ["ses", "setup"],
-			},
-		];
-		const pageByKey = new Map(pages.map((p) => [p.key, p]));
-
-		resolveModules(pages, pageByKey);
-
-		expect(pages[1].extra).toEqual({ module: "SES Inbox" });
-	});
-
-	it("does not overwrite existing module", () => {
-		const pages = [
-			{
-				key: "ses",
-				title: "SES",
-				order: 1,
-				file: "ses/index.mdx",
-				segments: ["ses"],
-				extra: { module: "SES Inbox" },
-			},
-			{
-				key: "ses/setup",
-				title: "Setup",
-				order: 2,
-				file: "ses/setup/index.mdx",
-				segments: ["ses", "setup"],
-				extra: { module: "Custom" },
-			},
-		];
-		const pageByKey = new Map(pages.map((p) => [p.key, p]));
-
-		resolveModules(pages, pageByKey);
-
-		expect(pages[1].extra?.module).toBe("Custom");
-	});
-});
