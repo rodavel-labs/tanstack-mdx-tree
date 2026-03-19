@@ -1,6 +1,6 @@
 {
 	"name": "@rodavel/tanstack-mdx-tree",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Typed navigation trees from MDX content colocated with TanStack Router routes",
 	"type": "module",
 	"keywords": [
@@ -61,11 +61,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rodavel/vite-plugin-content-tree.git"
+		"url": "https://github.com/rodavel-labs/vite-plugin-content-tree.git"
 	},
 	"bugs": {
-		"url": "https://github.com/rodavel/vite-plugin-content-tree/issues"
+		"url": "https://github.com/rodavel-labs/vite-plugin-content-tree/issues"
 	},
-	"homepage": "https://github.com/rodavel/vite-plugin-content-tree#readme",
+	"homepage": "https://github.com/rodavel-labs/vite-plugin-content-tree#readme",
 	"license": "MIT"
 }
