@@ -3,7 +3,6 @@ import type {
 	ContentTreeDirectoryNode,
 	ContentTreeNode,
 	ContentTreePageNode,
-	DirectoryLabelResolver,
 	DirectoryMeta,
 	ScannedPage,
 	WithoutOrder,
@@ -20,7 +19,7 @@ export interface BuildContext {
 	pageIndex: PageIndex;
 	metas: Map<string, DirectoryMeta>;
 	urlPrefix: string;
-	resolveDirectoryLabel: DirectoryLabelResolver;
+	resolveDirectoryLabel: (dirName: string, meta: DirectoryMeta, indexPage: ScannedPage | undefined) => string;
 }
 
 /**
@@ -68,11 +67,11 @@ export function buildPageIndex(pages: ScannedPage[]): PageIndex {
  * Default directory label resolver.
  * Falls back through: `extra.module` → `meta.name` → throws.
  */
-export const defaultResolveDirectoryLabel: DirectoryLabelResolver = (
-	dirName,
-	meta,
-	indexPage,
-) => {
+export const defaultResolveDirectoryLabel = (
+	dirName: string,
+	meta: DirectoryMeta,
+	indexPage: ScannedPage | undefined,
+): string => {
 	const mod = indexPage?.extra?.module as string | undefined;
 	if (mod) return mod;
 	if (meta.name) return meta.name;

@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import matter from "gray-matter";
 import { DEFAULT_ORDER } from "./config";
-import type { DirectoryMeta, FrontmatterMapper, FrontmatterResult, ScannedPage } from "./types";
+import type { DirectoryMeta, FrontmatterResult, ScannedPage } from "./types";
 
 const BASE_FIELDS = new Set(["title", "description", "order", "nav"]);
 const META_BASE_FIELDS = new Set(["name", "order"]);
@@ -11,7 +11,7 @@ const META_BASE_FIELDS = new Set(["name", "order"]);
  * Default frontmatter mapper that extracts base fields and passes
  * all remaining fields through as `extra`.
  */
-export const defaultMapFrontmatter: FrontmatterMapper = (raw) => {
+export const defaultMapFrontmatter = (raw: Record<string, unknown>): FrontmatterResult => {
 	const result: FrontmatterResult = {
 		title: typeof raw.title === "string" ? raw.title : "",
 		description: typeof raw.description === "string" ? raw.description : undefined,
@@ -103,13 +103,11 @@ export async function readDirectoryMeta(
  *
  * @param docsDir - Root content directory to scan
  * @param pageFile - Filename to match as a page entry (e.g., `"index.mdx"`)
- * @param mapFrontmatter - Callback to extract fields from raw frontmatter data
  * @returns Array of scanned pages with extracted metadata
  */
 export async function scanPages(
 	docsDir: string,
 	pageFile: string,
-	mapFrontmatter: FrontmatterMapper = defaultMapFrontmatter,
 ): Promise<ScannedPage[]> {
 	const pages: ScannedPage[] = [];
 
@@ -141,7 +139,7 @@ export async function scanPages(
 					throw new Error(`Failed to parse frontmatter in: ${full}`, { cause: err });
 				}
 
-				const result = mapFrontmatter(data, relPath);
+				const result = defaultMapFrontmatter(data);
 
 				pages.push({
 					key,
