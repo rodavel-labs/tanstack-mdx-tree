@@ -133,6 +133,7 @@ export function buildChildren(parentPath: string, ctx: BuildContext): ContentTre
 			id: dirPath,
 			children,
 			order: indexPage?.order ?? meta.order ?? DEFAULT_ORDER,
+			...(meta.extra && { extra: meta.extra }),
 		};
 
 		if (indexPage) {

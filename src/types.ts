@@ -23,6 +23,7 @@ export interface ContentTreeDirectoryNode {
 	children: ContentTreeNode[];
 	index?: ContentTreeIndexNode;
 	order: number;
+	extra?: Record<string, unknown>;
 }
 
 /** A node in the content tree — either a page or a directory. */
@@ -37,6 +38,7 @@ export type WithoutOrder =
 			id: string;
 			children: WithoutOrder[];
 			index?: ContentTreeIndexNode;
+			extra?: Record<string, unknown>;
 	  };
 
 /** The final shape of a content tree after order fields are stripped. */

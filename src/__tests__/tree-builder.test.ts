@@ -155,6 +155,39 @@ describe("buildChildren", () => {
 		);
 	});
 
+	it("passes meta.extra through to directory node", () => {
+		const pages = [
+			mockPage({ key: "tools", title: "Tools", order: 1 }),
+			mockPage({ key: "tools/lint", title: "Lint", order: 1 }),
+		];
+		const pageIndex = buildPageIndex(pages);
+		const metas = new Map<string, DirectoryMeta>([
+			["tools", { name: "Tools", extra: { icon: "wrench" } }],
+		]);
+
+		const children = buildChildren("", makeCtx(pageIndex, { metas }));
+
+		const dir = children[0];
+		expect(dir.type).toBe("directory");
+		if (dir.type !== "directory") throw new Error("expected directory");
+		expect(dir.extra).toEqual({ icon: "wrench" });
+	});
+
+	it("omits extra on directory nodes without extra metadata", () => {
+		const pages = [
+			mockPage({ key: "guides", title: "Guides", order: 1 }),
+			mockPage({ key: "guides/setup", title: "Setup", order: 1 }),
+		];
+		const pageIndex = buildPageIndex(pages);
+		const metas = new Map<string, DirectoryMeta>([["guides", { name: "Guides" }]]);
+
+		const children = buildChildren("", makeCtx(pageIndex, { metas }));
+
+		const dir = children[0];
+		if (dir.type !== "directory") throw new Error("expected directory");
+		expect("extra" in dir).toBe(false);
+	});
+
 	it("uses custom resolveDirectoryLabel", () => {
 		const pages = [
 			mockPage({ key: "guides", title: "Guides", order: 1 }),
@@ -209,6 +242,22 @@ describe("stripOrder", () => {
 		const firstChild = result.children[0];
 		expect(firstChild).toBeDefined();
 		expect("order" in firstChild).toBe(false);
+	});
+
+	it("preserves extra on directory nodes", () => {
+		const node: ContentTreeDirectoryNode = {
+			type: "directory",
+			name: "Dir",
+			id: "dir",
+			children: [],
+			order: 1,
+			extra: { icon: "mail" },
+		};
+
+		const result = stripOrder(node);
+		if (result.type !== "directory") throw new Error("expected directory");
+		expect(result.extra).toEqual({ icon: "mail" });
+		expect("order" in result).toBe(false);
 	});
 
 	it("preserves index without order field", () => {
