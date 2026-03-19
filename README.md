@@ -91,6 +91,16 @@ Here `icon` would be available as `extra.icon`.
 | `pageFile` | `string` | `"index.mdx"` | Filename to match as a page entry |
 | `enrichPages` | `(pages, pageByKey) => void` | no-op | Callback invoked after scanning and before tree building; mutate pages in place (e.g., inherit fields from ancestors). Receives the pages array and a `Map<string, ScannedPage>` for O(1) lookups |
 
+## CLI
+
+Generate the content tree from the command line using your existing Vite config:
+
+```bash
+npx content-tree
+```
+
+The CLI reads the `contentTreeGeneratorPlugin` options from your `vite.config.ts` and runs the generator. Useful for CI or scripts that need to generate the tree outside of a Vite build.
+
 ## Compatibility
 
 - Vite 5+

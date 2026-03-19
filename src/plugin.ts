@@ -20,6 +20,9 @@ export function contentTreeGeneratorPlugin(opts: ContentTreeGeneratorOptions): P
 	return {
 		name: "content-tree",
 		enforce: "pre",
+		api: {
+			generate: () => generate(resolved),
+		},
 		configResolved(config) {
 			resolved = {
 				...opts,
