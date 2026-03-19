@@ -2,10 +2,14 @@
 
 Vite plugin that generates typed navigation trees from MDX content colocated with your [TanStack Router](https://tanstack.com/router) routes.
 
+## Why
+
+Colocates MDX documentation with TanStack Router routes following the same file-system conventions. `_meta.json` files provide display names and ordering per directory. The plugin scans the structure and outputs a typed tree and page map for use in navigation components.
+
 ## Install
 
 ```bash
-npm install @rodavel/tanstack-mdx-tree
+bun add @rodavel/tanstack-mdx-tree
 ```
 
 ## Usage
@@ -24,7 +28,7 @@ export default defineConfig({
 });
 ```
 
-The plugin scans `docsDir` for page files (default `index.mdx`) with YAML frontmatter, builds a nested navigation tree, and writes it to `outFile` as a TypeScript module. During dev it watches for changes and regenerates automatically.
+The plugin scans `docsDir` for page files (default `index.mdx`) with YAML frontmatter, builds a nested navigation tree, and writes it to `outFile` as a TypeScript module. It regenerates on every content or metadata change during dev.
 
 ### URL prefix derivation
 
@@ -57,7 +61,17 @@ Each directory can contain a `_meta.json` file to configure its tree node:
 | `name` | `string` | Display label for the directory node |
 | `order` | `number` | Sort order (lower values appear first) |
 
-Any additional fields are passed through as `extra` on the `DirectoryMeta` object.
+Any additional fields are passed through as `extra` on the `DirectoryMeta` object:
+
+```json
+{
+  "name": "Guides",
+  "order": 1,
+  "icon": "book"
+}
+```
+
+Here `icon` would be available as `extra.icon`.
 
 ## Options
 
