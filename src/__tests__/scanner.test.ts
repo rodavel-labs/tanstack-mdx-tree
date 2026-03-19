@@ -148,4 +148,3 @@ describe("readDirectoryMeta", () => {
 		expect(meta).toEqual({ name: "Valid", order: 3, extra: { icon: "folder" } });
 	});
 });
-

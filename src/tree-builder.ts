@@ -19,7 +19,11 @@ export interface BuildContext {
 	pageIndex: PageIndex;
 	metas: Map<string, DirectoryMeta>;
 	urlPrefix: string;
-	resolveDirectoryLabel: (dirName: string, meta: DirectoryMeta, indexPage: ScannedPage | undefined) => string;
+	resolveDirectoryLabel: (
+		dirName: string,
+		meta: DirectoryMeta,
+		indexPage: ScannedPage | undefined,
+	) => string;
 }
 
 /**
@@ -75,9 +79,7 @@ export const defaultResolveDirectoryLabel = (
 	const mod = indexPage?.extra?.module as string | undefined;
 	if (mod) return mod;
 	if (meta.name) return meta.name;
-	throw new Error(
-		`Directory "${dirName}" has no label. Set { "name": "..." } in its _meta.json.`,
-	);
+	throw new Error(`Directory "${dirName}" has no label. Set { "name": "..." } in its _meta.json.`);
 };
 
 /**

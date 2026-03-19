@@ -2,24 +2,24 @@ import { randomUUID } from "node:crypto";
 import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import {
-  DEFAULT_META_FILE,
-  DEFAULT_PAGE_FILE,
-  DEFAULT_ROUTES_DIR,
-  INDEX_SUFFIX,
-  PACKAGE_NAME,
+	DEFAULT_META_FILE,
+	DEFAULT_PAGE_FILE,
+	DEFAULT_ROUTES_DIR,
+	INDEX_SUFFIX,
+	PACKAGE_NAME,
 } from "./config";
 import { readDirectoryMeta, scanPages } from "./scanner";
 import {
-  buildChildren,
-  buildPageIndex,
-  defaultResolveDirectoryLabel,
-  stripOrder,
+	buildChildren,
+	buildPageIndex,
+	defaultResolveDirectoryLabel,
+	stripOrder,
 } from "./tree-builder";
 import type {
-  ContentTreeGeneratorOptions,
-  DirectoryMeta,
-  ScannedPage,
-  WithoutOrder,
+	ContentTreeGeneratorOptions,
+	DirectoryMeta,
+	ScannedPage,
+	WithoutOrder,
 } from "./types";
 
 /**
@@ -27,27 +27,25 @@ import type {
  * @example deriveUrlPrefix("src/routes/docs", "src/routes") → "/docs"
  */
 function deriveUrlPrefix(docsDir: string, routesDir: string): string {
-  const rel = relative(routesDir, docsDir).replace(/\\/g, "/");
-  if (rel.startsWith("..")) {
-    throw new Error(
-      `docsDir "${docsDir}" is not inside routesDir "${routesDir}"`,
-    );
-  }
-  return `/${rel}`;
+	const rel = relative(routesDir, docsDir).replace(/\\/g, "/");
+	if (rel.startsWith("..")) {
+		throw new Error(`docsDir "${docsDir}" is not inside routesDir "${routesDir}"`);
+	}
+	return `/${rel}`;
 }
 
 /** Produces `{ title, description?, file }` plus any extra fields. Base fields always win over extra. */
 function mapPageEntry(page: ScannedPage): Record<string, unknown> {
-  const entry: Record<string, unknown> = { ...page.extra };
-  entry.title = page.title;
-  if (page.description) entry.description = page.description;
-  entry.file = page.file;
-  return entry;
+	const entry: Record<string, unknown> = { ...page.extra };
+	entry.title = page.title;
+	if (page.description) entry.description = page.description;
+	entry.file = page.file;
+	return entry;
 }
 
 export interface GenerateDataResult {
-  pages: ScannedPage[];
-  tree: WithoutOrder;
+	pages: ScannedPage[];
+	tree: WithoutOrder;
 }
 
 /**
@@ -55,32 +53,28 @@ export interface GenerateDataResult {
  * during page indexing, returning a map for O(1) lookups during tree building.
  */
 async function preloadMetas(
-  docsDir: string,
-  metaFile: string,
-  subDirNames: Map<string, Set<string>>,
+	docsDir: string,
+	metaFile: string,
+	subDirNames: Map<string, Set<string>>,
 ): Promise<Map<string, DirectoryMeta>> {
-  const dirPaths = new Set<string>();
-  for (const [parentPath, dirs] of subDirNames) {
-    for (const dir of dirs) {
-      dirPaths.add(parentPath ? `${parentPath}/${dir}` : dir);
-    }
-  }
+	const dirPaths = new Set<string>();
+	for (const [parentPath, dirs] of subDirNames) {
+		for (const dir of dirs) {
+			dirPaths.add(parentPath ? `${parentPath}/${dir}` : dir);
+		}
+	}
 
-  const metas = new Map<string, DirectoryMeta>();
-  await Promise.all(
-    [...dirPaths].map(async (dirPath) => {
-      const meta = await readDirectoryMeta(docsDir, dirPath, metaFile);
-      if (
-        meta.name !== undefined ||
-        meta.order !== undefined ||
-        meta.extra !== undefined
-      ) {
-        metas.set(dirPath, meta);
-      }
-    }),
-  );
+	const metas = new Map<string, DirectoryMeta>();
+	await Promise.all(
+		[...dirPaths].map(async (dirPath) => {
+			const meta = await readDirectoryMeta(docsDir, dirPath, metaFile);
+			if (meta.name !== undefined || meta.order !== undefined || meta.extra !== undefined) {
+				metas.set(dirPath, meta);
+			}
+		}),
+	);
 
-  return metas;
+	return metas;
 }
 
 /**
@@ -90,53 +84,47 @@ async function preloadMetas(
  * @param opts - Generator configuration
  * @returns The scanned pages and the built tree (with order fields stripped)
  */
-export async function generateData(
-  opts: ContentTreeGeneratorOptions,
-): Promise<GenerateDataResult> {
-  const metaFile = opts.metaFile ?? DEFAULT_META_FILE;
-  const pageFile = opts.pageFile ?? DEFAULT_PAGE_FILE;
-  const routesDir = opts.routesDir ?? DEFAULT_ROUTES_DIR;
-  const urlPrefix = deriveUrlPrefix(opts.docsDir, routesDir);
-  const rootDirName = basename(opts.docsDir);
+export async function generateData(opts: ContentTreeGeneratorOptions): Promise<GenerateDataResult> {
+	const metaFile = opts.metaFile ?? DEFAULT_META_FILE;
+	const pageFile = opts.pageFile ?? DEFAULT_PAGE_FILE;
+	const routesDir = opts.routesDir ?? DEFAULT_ROUTES_DIR;
+	const urlPrefix = deriveUrlPrefix(opts.docsDir, routesDir);
+	const rootDirName = basename(opts.docsDir);
 
-  const pages = await scanPages(opts.docsDir, pageFile);
-  const pageByKey = new Map(pages.map((p) => [p.key, p]));
-  const pageIndex = buildPageIndex(pages);
-  const metas = await preloadMetas(
-    opts.docsDir,
-    metaFile,
-    pageIndex.subDirNames,
-  );
+	const pages = await scanPages(opts.docsDir, pageFile);
+	const pageByKey = new Map(pages.map((p) => [p.key, p]));
+	const pageIndex = buildPageIndex(pages);
+	const metas = await preloadMetas(opts.docsDir, metaFile, pageIndex.subDirNames);
 
-  const rootMeta = await readDirectoryMeta(opts.docsDir, "", metaFile);
-  const treeName = rootMeta.name ?? rootDirName;
+	const rootMeta = await readDirectoryMeta(opts.docsDir, "", metaFile);
+	const treeName = rootMeta.name ?? rootDirName;
 
-  const ctx = {
-    pageIndex,
-    metas,
-    urlPrefix,
-    resolveDirectoryLabel: defaultResolveDirectoryLabel,
-  };
-  const topChildren = buildChildren("", ctx);
+	const ctx = {
+		pageIndex,
+		metas,
+		urlPrefix,
+		resolveDirectoryLabel: defaultResolveDirectoryLabel,
+	};
+	const topChildren = buildChildren("", ctx);
 
-  const rootPage = pageByKey.get("");
-  const tree: WithoutOrder = {
-    type: "directory",
-    name: treeName,
-    id: rootDirName,
-    children: topChildren.map(stripOrder),
-  };
+	const rootPage = pageByKey.get("");
+	const tree: WithoutOrder = {
+		type: "directory",
+		name: treeName,
+		id: rootDirName,
+		children: topChildren.map(stripOrder),
+	};
 
-  if (rootPage) {
-    tree.index = {
-      type: "page",
-      name: rootPage.nav ?? rootPage.title,
-      url: urlPrefix,
-      id: `${rootDirName}${INDEX_SUFFIX}`,
-    };
-  }
+	if (rootPage) {
+		tree.index = {
+			type: "page",
+			name: rootPage.nav ?? rootPage.title,
+			url: urlPrefix,
+			id: `${rootDirName}${INDEX_SUFFIX}`,
+		};
+	}
 
-  return { pages, tree };
+	return { pages, tree };
 }
 
 /**
@@ -146,38 +134,39 @@ export async function generateData(
  * @param data - The data to serialize (from `generateData`)
  */
 export async function writeOutput(
-  opts: ContentTreeGeneratorOptions,
-  data: GenerateDataResult,
+	opts: ContentTreeGeneratorOptions,
+	data: GenerateDataResult,
 ): Promise<void> {
-  const pagesEntries: [string, Record<string, unknown>][] = data.pages.map(
-    (p) => [p.key, mapPageEntry(p)],
-  );
+	const pagesEntries: [string, Record<string, unknown>][] = data.pages.map((p) => [
+		p.key,
+		mapPageEntry(p),
+	]);
 
-  const pagesJson = JSON.stringify(pagesEntries, null, "\t");
-  const treeJson = JSON.stringify(data.tree, null, "\t");
+	const pagesJson = JSON.stringify(pagesEntries, null, "\t");
+	const treeJson = JSON.stringify(data.tree, null, "\t");
 
-  const lines: string[] = [
-    "// This file is auto-generated by the content-tree plugin. Do not edit.",
-    `import type { ContentTree, ContentPage } from "${PACKAGE_NAME}";`,
-    "",
-    `export const pages = new Map<string, ContentPage>(${pagesJson});`,
-    "",
-    `export const docsTree: ContentTree = ${treeJson};`,
-  ];
+	const lines: string[] = [
+		"// This file is auto-generated by the content-tree plugin. Do not edit.",
+		`import type { ContentTree, ContentPage } from "${PACKAGE_NAME}";`,
+		"",
+		`export const pages = new Map<string, ContentPage>(${pagesJson});`,
+		"",
+		`export const docsTree: ContentTree = ${treeJson};`,
+	];
 
-  const outDir = dirname(opts.outFile);
-  await mkdir(outDir, { recursive: true });
+	const outDir = dirname(opts.outFile);
+	await mkdir(outDir, { recursive: true });
 
-  const tmpFile = join(outDir, `.${randomUUID()}.content-tree.tmp`);
-  try {
-    await writeFile(tmpFile, `${lines.join("\n")}\n`);
-    await rename(tmpFile, opts.outFile);
-  } catch (err) {
-    try {
-      await unlink(tmpFile);
-    } catch {}
-    throw err;
-  }
+	const tmpFile = join(outDir, `.${randomUUID()}.content-tree.tmp`);
+	try {
+		await writeFile(tmpFile, `${lines.join("\n")}\n`);
+		await rename(tmpFile, opts.outFile);
+	} catch (err) {
+		try {
+			await unlink(tmpFile);
+		} catch {}
+		throw err;
+	}
 }
 
 /**
@@ -185,9 +174,7 @@ export async function writeOutput(
  *
  * @param opts - Generator configuration
  */
-export async function generate(
-  opts: ContentTreeGeneratorOptions,
-): Promise<void> {
-  const data = await generateData(opts);
-  await writeOutput(opts, data);
+export async function generate(opts: ContentTreeGeneratorOptions): Promise<void> {
+	const data = await generateData(opts);
+	await writeOutput(opts, data);
 }

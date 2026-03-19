@@ -105,10 +105,7 @@ export async function readDirectoryMeta(
  * @param pageFile - Filename to match as a page entry (e.g., `"index.mdx"`)
  * @returns Array of scanned pages with extracted metadata
  */
-export async function scanPages(
-	docsDir: string,
-	pageFile: string,
-): Promise<ScannedPage[]> {
+export async function scanPages(docsDir: string, pageFile: string): Promise<ScannedPage[]> {
 	const pages: ScannedPage[] = [];
 
 	async function walk(dir: string) {
@@ -160,4 +157,3 @@ export async function scanPages(
 	await walk(docsDir);
 	return pages;
 }
-
