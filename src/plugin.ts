@@ -1,15 +1,13 @@
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
 import { normalizePath } from "vite";
-import { DEFAULT_META_FILE, DEFAULT_PAGE_FILE } from "./config";
+import { DEFAULT_META_FILE, DEFAULT_PAGE_FILE, DEFAULT_ROUTES_DIR } from "./config";
 import { generate } from "./generator";
 import type { ContentTreeGeneratorOptions } from "./types";
 
 /**
- * Vite plugin that scans a content directory, extracts frontmatter,
- * and generates a typed navigation tree + page index as a TypeScript file.
- *
- * Runs at build start and watches for changes during dev.
+ * Generates typed navigation trees from MDX content colocated with
+ * TanStack Router routes. Runs at build start and watches for changes during dev.
  *
  * @param opts - Generator configuration
  * @returns A Vite plugin
@@ -27,6 +25,7 @@ export function contentTreeGeneratorPlugin(opts: ContentTreeGeneratorOptions): P
 				...opts,
 				docsDir: normalizePath(resolve(config.root, opts.docsDir)),
 				outFile: normalizePath(resolve(config.root, opts.outFile)),
+				routesDir: normalizePath(resolve(config.root, opts.routesDir ?? DEFAULT_ROUTES_DIR)),
 			};
 		},
 		async buildStart() {

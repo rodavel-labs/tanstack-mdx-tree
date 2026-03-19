@@ -31,7 +31,6 @@ function makeCtx(
 		pageIndex,
 		metas: new Map(),
 		urlPrefix: "/docs",
-		acronyms: new Set(),
 		resolveDirectoryLabel: defaultResolveDirectoryLabel,
 		...overrides,
 	};
@@ -64,8 +63,9 @@ describe("buildChildren", () => {
 			mockPage({ key: "guides/setup", title: "Setup", order: 1 }),
 		];
 		const pageIndex = buildPageIndex(pages);
+		const metas = new Map<string, DirectoryMeta>([["guides", { name: "Guides" }]]);
 
-		const children = buildChildren("", makeCtx(pageIndex));
+		const children = buildChildren("", makeCtx(pageIndex, { metas }));
 
 		expect(children).toHaveLength(1);
 		const dir = children[0];
@@ -135,11 +135,24 @@ describe("buildChildren", () => {
 		];
 		const pageIndex = buildPageIndex(pages);
 		pageIndex.subDirNames.set("", new Set(["guides", "empty-dir"]));
+		const metas = new Map<string, DirectoryMeta>([["guides", { name: "Guides" }]]);
 
-		const children = buildChildren("", makeCtx(pageIndex));
+		const children = buildChildren("", makeCtx(pageIndex, { metas }));
 
 		expect(children).toHaveLength(1);
 		expect(children.find((c) => c.id === "empty-dir")).toBeUndefined();
+	});
+
+	it("throws when directory has no label in _meta.json or extra.module", () => {
+		const pages = [
+			mockPage({ key: "unlabeled", title: "Index", order: 1 }),
+			mockPage({ key: "unlabeled/child", title: "Child", order: 1 }),
+		];
+		const pageIndex = buildPageIndex(pages);
+
+		expect(() => buildChildren("", makeCtx(pageIndex))).toThrow(
+			/Directory "unlabeled" has no label/,
+		);
 	});
 
 	it("uses custom resolveDirectoryLabel", () => {

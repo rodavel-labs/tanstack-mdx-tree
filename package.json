@@ -1,7 +1,7 @@
 {
-	"name": "@rodavel/vite-plugin-content-tree",
+	"name": "@rodavel/tanstack-mdx-tree",
 	"version": "0.1.0",
-	"description": "Vite plugin that scans content directories, extracts frontmatter, and generates a typed navigation tree",
+	"description": "Typed navigation trees from MDX content colocated with TanStack Router routes",
 	"type": "module",
 	"keywords": [
 		"vite",

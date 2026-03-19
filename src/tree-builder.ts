@@ -20,7 +20,6 @@ export interface BuildContext {
 	pageIndex: PageIndex;
 	metas: Map<string, DirectoryMeta>;
 	urlPrefix: string;
-	acronyms: Set<string>;
 	resolveDirectoryLabel: DirectoryLabelResolver;
 }
 
@@ -66,33 +65,20 @@ export function buildPageIndex(pages: ScannedPage[]): PageIndex {
 }
 
 /**
- * Converts a kebab-case slug to Title Case, uppercasing known acronyms.
- *
- * @param slug - The slug to humanize (e.g., `"ses-api-reference"`)
- * @param acronyms - Set of words to fully uppercase (e.g., `"ses"` → `"SES"`)
- * @returns The humanized string (e.g., `"SES API Reference"`)
- */
-export function humanize(slug: string, acronyms: Set<string>): string {
-	return slug
-		.split("-")
-		.map((w) => (acronyms.has(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
-		.join(" ");
-}
-
-/**
  * Default directory label resolver.
- * Falls back through: `extra.module` → `meta.name` → `humanize(dirName)`.
+ * Falls back through: `extra.module` → `meta.name` → throws.
  */
 export const defaultResolveDirectoryLabel: DirectoryLabelResolver = (
 	dirName,
 	meta,
 	indexPage,
-	acronyms,
 ) => {
 	const mod = indexPage?.extra?.module as string | undefined;
 	if (mod) return mod;
 	if (meta.name) return meta.name;
-	return humanize(dirName, acronyms);
+	throw new Error(
+		`Directory "${dirName}" has no label. Set { "name": "..." } in its _meta.json.`,
+	);
 };
 
 /**
@@ -138,7 +124,7 @@ export function buildChildren(parentPath: string, ctx: BuildContext): ContentTre
 
 		if (children.length === 0 && !indexPage) continue;
 
-		const dirLabel = ctx.resolveDirectoryLabel(dirName, meta, indexPage, ctx.acronyms);
+		const dirLabel = ctx.resolveDirectoryLabel(dirName, meta, indexPage);
 
 		const directory: ContentTreeDirectoryNode = {
 			type: "directory",

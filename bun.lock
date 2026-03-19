@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@rodavel/vite-plugin-content-tree",
+      "name": "@rodavel/tanstack-mdx-tree",
       "dependencies": {
         "gray-matter": "^4.0.3",
       },

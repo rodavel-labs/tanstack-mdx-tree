@@ -14,3 +14,14 @@ export async function createPage(
 		.join("\n");
 	await writeFile(fullPath, `---\n${fm}\n---\n\nContent.`);
 }
+
+/** Creates a `_meta.json` file in a directory within the fixture directory. */
+export async function createMeta(
+	fixtureDir: string,
+	dirPath: string,
+	meta: Record<string, unknown>,
+) {
+	const fullDir = join(fixtureDir, dirPath);
+	await mkdir(fullDir, { recursive: true });
+	await writeFile(join(fullDir, "_meta.json"), JSON.stringify(meta));
+}
