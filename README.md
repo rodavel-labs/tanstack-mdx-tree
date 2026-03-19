@@ -89,6 +89,7 @@ Here `icon` would be available as `extra.icon`.
 | `routesDir` | `string` | `"src/routes"` | TanStack Router routes directory, used to derive the URL prefix |
 | `metaFile` | `string` | `"_meta.json"` | Filename for directory metadata |
 | `pageFile` | `string` | `"index.mdx"` | Filename to match as a page entry |
+| `enrichPages` | `(pages, pageByKey) => void` | no-op | Callback invoked after scanning and before tree building; mutate pages in place (e.g., inherit fields from ancestors). Receives the pages array and a `Map<string, ScannedPage>` for O(1) lookups |
 
 ## Compatibility
 

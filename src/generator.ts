@@ -93,6 +93,9 @@ export async function generateData(opts: ContentTreeGeneratorOptions): Promise<G
 
 	const pages = await scanPages(opts.docsDir, pageFile);
 	const pageByKey = new Map(pages.map((p) => [p.key, p]));
+
+	opts.enrichPages?.(pages, pageByKey);
+
 	const pageIndex = buildPageIndex(pages);
 	const metas = await preloadMetas(opts.docsDir, metaFile, pageIndex.subDirNames);
 

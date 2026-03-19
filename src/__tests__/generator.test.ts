@@ -81,6 +81,25 @@ describe("generateData", () => {
 		expect(result.tree.index).toBeUndefined();
 	});
 
+	it("calls enrichPages after scanning and before tree building", async () => {
+		await createPage(fixtureDir, "index.mdx", { title: "Home" });
+		await createPage(fixtureDir, "about/index.mdx", { title: "About", order: 1 });
+		await createMeta(fixtureDir, "about", { name: "About" });
+
+		const result = await generateData({
+			docsDir: fixtureDir,
+			outFile,
+			routesDir: tempBase,
+			enrichPages(_pages, pageByKey) {
+				const about = pageByKey.get("about");
+				if (about) about.title = "Enriched About";
+			},
+		});
+
+		const aboutPage = result.pages.find((p) => p.key === "about");
+		expect(aboutPage?.title).toBe("Enriched About");
+	});
+
 	it("passes non-base frontmatter fields to extra", async () => {
 		await createPage(fixtureDir, "index.mdx", { title: "Home", module: "SES", custom: "val" });
 

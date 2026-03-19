@@ -106,4 +106,13 @@ export interface ContentTreeGeneratorOptions {
 	metaFile?: string;
 	/** Filename to match as a page entry. @default "index.mdx" */
 	pageFile?: string;
+
+	/**
+	 * Called after scanning and before tree building, allowing consumers to
+	 * mutate pages in place (e.g., inherit fields from ancestors).
+	 *
+	 * @param pages - The full array of scanned pages.
+	 * @param pageByKey - A Map keyed by page key for O(1) lookups.
+	 */
+	enrichPages?: (pages: ScannedPage[], pageByKey: Map<string, ScannedPage>) => void;
 }
