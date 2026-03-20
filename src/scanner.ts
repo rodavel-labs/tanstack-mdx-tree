@@ -155,5 +155,7 @@ export async function scanPages(docsDir: string, pageFile: string): Promise<Scan
 	}
 
 	await walk(docsDir);
+	// this is needed otherwise contentTree.gen.ts will generate different output on each run due to filesystem order differences
+	pages.sort((a, b) => a.key.localeCompare(b.key));
 	return pages;
 }
