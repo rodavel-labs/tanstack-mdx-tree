@@ -1,6 +1,6 @@
 {
 	"name": "@rodavel/tanstack-mdx-tree",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "Typed navigation trees from MDX content colocated with TanStack Router routes",
 	"type": "module",
 	"keywords": [
